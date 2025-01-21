@@ -3,7 +3,7 @@ package v1
 import (
 	"net/http"
 
-	"oss.nandlabs.io/golly/rest/server"
+	"oss.nandlabs.io/golly/rest"
 	"oss.nandlabs.io/orcaloop-sdk/data"
 	"oss.nandlabs.io/orcaloop-sdk/handlers"
 	"oss.nandlabs.io/orcaloop-sdk/models"
@@ -20,9 +20,9 @@ var transformError = func(code int, message string) *models.Error {
 	}
 }
 
-func ExecuteAction(ctx server.Context) {
+func ExecuteAction(ctx rest.ServerContext) {
 	var actionHandler handlers.ActionHandler
-	actionId, error := ctx.GetParam("actionId", server.PathParam)
+	actionId, error := ctx.GetParam("actionId", rest.PathParam)
 	if error != nil {
 		ctx.SetStatusCode(http.StatusBadRequest)
 		ctx.WriteJSON(transformError(http.StatusBadRequest, error.Error()))
@@ -48,6 +48,12 @@ func ExecuteAction(ctx server.Context) {
 		ctx.WriteJSON(transformError(http.StatusBadRequest, "Instance Id is required"))
 		return
 	}
+	stepId, ok := input[data.StepIdKey].(string)
+	if !ok {
+		ctx.SetStatusCode(http.StatusBadRequest)
+		ctx.WriteJSON(transformError(http.StatusBadRequest, "Step Id is required"))
+		return
+	}
 
 	pipeline := data.NewPipelineFrom(instanceId, input)
 	err = actionHandler.Handle(pipeline)
@@ -56,7 +62,26 @@ func ExecuteAction(ctx server.Context) {
 		ctx.WriteJSON(transformError(http.StatusInternalServerError, err.Error()))
 		return
 	} else {
-		ctx.SetStatusCode(http.StatusAccepted)
+		responseData := make(map[string]any)
+		for _, returnParam := range actionHandler.Spec().Returns {
+			returnval, err := pipeline.Get(returnParam.Name)
+			if err != nil {
+				ctx.SetStatusCode(http.StatusInternalServerError)
+				ctx.WriteJSON(transformError(http.StatusInternalServerError, err.Error()))
+				return
+			}
+			responseData[returnParam.Name] = returnval
+		}
+
+		ctx.SetStatusCode(http.StatusOK)
+		response := &models.StepChangeEvent{
+			InstanceId: instanceId,
+			StepId:     stepId,
+			Status:     models.StatusCompleted,
+			Data:       data.NewPipelineFrom(instanceId, responseData),
+		}
+		ctx.WriteJSON(response)
+
 		return
 	}
 }
