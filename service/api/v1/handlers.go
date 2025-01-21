@@ -20,7 +20,7 @@ var transformError = func(code int, message string) *models.Error {
 	}
 }
 
-func ExecuteAction(ctx rest.Context) {
+func ExecuteAction(ctx rest.ServerContext) {
 	var actionHandler handlers.ActionHandler
 	actionId, error := ctx.GetParam("actionId", rest.PathParam)
 	if error != nil {
