@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"oss.nandlabs.io/golly/ioutils"
-	rest "oss.nandlabs.io/golly/rest/client"
+	"oss.nandlabs.io/golly/rest"
 	"oss.nandlabs.io/orcaloop-sdk/data"
 	"oss.nandlabs.io/orcaloop-sdk/handlers"
 	"oss.nandlabs.io/orcaloop-sdk/models"
@@ -63,7 +63,6 @@ func (oc *OrcaloopClient) Respond(actionSpec models.ActionSpec, pipeline *data.P
 	req.SetContentType(ioutils.MimeApplicationJSON)
 	outputData := data.NewPipeline(instanceId)
 	// Set the error response
-
 	if pipeline.Has(data.StepIdKey) {
 		stepId = pipeline.GetStepId()
 		outputData.Set(data.StepIdKey, stepId)

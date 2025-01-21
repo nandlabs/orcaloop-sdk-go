@@ -17,6 +17,7 @@ const (
 	InstanceIdKey = "__instanceId__"
 	StepIdKey     = "__stepId__"
 	ErrorKey      = "__error__"
+	ActionIdKey   = "__action_id__"
 )
 
 // Pipeline represents a pipeline that processes data stored in a map.
