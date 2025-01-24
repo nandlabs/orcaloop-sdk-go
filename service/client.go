@@ -8,6 +8,7 @@ import (
 	"oss.nandlabs.io/golly/ioutils"
 	"oss.nandlabs.io/golly/rest"
 	"oss.nandlabs.io/orcaloop-sdk/data"
+	"oss.nandlabs.io/orcaloop-sdk/events"
 	"oss.nandlabs.io/orcaloop-sdk/handlers"
 	"oss.nandlabs.io/orcaloop-sdk/models"
 )
@@ -94,7 +95,7 @@ func (oc *OrcaloopClient) Respond(actionSpec models.ActionSpec, pipeline *data.P
 		}
 		status = models.StatusCompleted
 	}
-	event := &models.StepChangeEvent{
+	event := &events.StepChangeEvent{
 		InstanceId: instanceId,
 		StepId:     stepId,
 		Status:     status,
