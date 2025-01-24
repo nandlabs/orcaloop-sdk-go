@@ -5,6 +5,7 @@ import (
 
 	"oss.nandlabs.io/golly/rest"
 	"oss.nandlabs.io/orcaloop-sdk/data"
+	"oss.nandlabs.io/orcaloop-sdk/events"
 	"oss.nandlabs.io/orcaloop-sdk/handlers"
 	"oss.nandlabs.io/orcaloop-sdk/models"
 )
@@ -74,7 +75,7 @@ func ExecuteAction(ctx rest.ServerContext) {
 		}
 
 		ctx.SetStatusCode(http.StatusOK)
-		response := &models.StepChangeEvent{
+		response := &events.StepChangeEvent{
 			InstanceId: instanceId,
 			StepId:     stepId,
 			Status:     models.StatusCompleted,

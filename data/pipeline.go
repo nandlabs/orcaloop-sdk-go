@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"oss.nandlabs.io/orcaloop-sdk/models"
 )
 
 var ErrInvalidType = errors.New("invalid type")
@@ -18,6 +20,8 @@ const (
 	StepIdKey     = "__stepId__"
 	ErrorKey      = "__error__"
 	ActionIdKey   = "__action_id__"
+	ParentIdKey   = "__parent__"
+	StatusKey     = "__status__"
 )
 
 // Pipeline represents a pipeline that processes data stored in a map.
@@ -287,6 +291,34 @@ func (p *Pipeline) Clone() *Pipeline {
 	return &Pipeline{
 		data: data,
 	}
+}
+
+// GetActionId retrieves the action ID from the Pipeline instance.
+// It uses the ExtractValue function to extract the value associated with the ActionIdKey.
+// Returns:
+//   - actionId: The action ID as a string.
+func (p *Pipeline) GetActionId() (actionId string) {
+	actionId, _ = ExtractValue[string](p, ActionIdKey)
+	return
+}
+
+// GetParent retrieves the parent value from the Pipeline instance.
+// It returns the parent as a string.
+// Returns:
+//   - parent: The parent value as a string.
+func (p *Pipeline) GetParent() (parent string) {
+	parent, _ = ExtractValue[string](p, ParentIdKey)
+	return
+}
+
+func (p *Pipeline) GetStatus() (status models.Status) {
+	status = models.StatusUnknown
+	s, err := ExtractValue[models.Status](p, StatusKey)
+	if err != nil {
+		status = s
+	}
+	return
+
 }
 
 // evaluateCondition evaluates a condition string using variables from the context.
