@@ -56,7 +56,7 @@ func (b *StepsBuilder) AddStep(step *models.Step) *StepsBuilder {
 //
 // Returns:
 //   - *StepsBuilder: The updated StepsBuilder instance with the new action step added.
-func (b *StepsBuilder) AddActionStep(id, name string, parameters []*models.Parameter, output []string) *StepsBuilder {
+func (b *StepsBuilder) AddActionStep(id, name string, parameters []*models.Parameter, output []*models.Result) *StepsBuilder {
 	step := &models.Step{
 		Id:   id,
 		Type: models.StepTypeAction,
@@ -64,7 +64,7 @@ func (b *StepsBuilder) AddActionStep(id, name string, parameters []*models.Param
 			Id:         id,
 			Name:       name,
 			Parameters: parameters,
-			Output:     output,
+			Results:    output,
 		},
 	}
 	b.trackSteps(step)

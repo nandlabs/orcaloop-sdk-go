@@ -99,7 +99,7 @@ func (oc *OrcaloopClient) Respond(actionSpec models.ActionSpec, pipeline *data.P
 		InstanceId: instanceId,
 		StepId:     stepId,
 		Status:     status,
-		Data:       outputData,
+		Data:       outputData.Map(),
 	}
 
 	req.SetBody(event)
