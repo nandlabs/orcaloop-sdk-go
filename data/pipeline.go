@@ -23,6 +23,7 @@ const (
 	ActionIdKey        = "__action_id__"
 	ParentIdKey        = "__parent__"
 	StatusKey          = "__status__"
+
 )
 
 // Pipeline represents a pipeline that processes data stored in a map.
