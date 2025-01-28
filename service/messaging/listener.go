@@ -11,11 +11,6 @@ import (
 	"oss.nandlabs.io/orcaloop-sdk/service"
 )
 
-const (
-	ActionIdKey   = "actionId"
-	InstanceIdKey = "instanceId"
-)
-
 var logger = l3.Get()
 
 type MsgListener struct {
@@ -37,31 +32,24 @@ func NewMsgListener(url *url.URL, id string, client *service.OrcaloopClient) *Ms
 					options := messaging.NewOptionsBuilder().AddNamedListener(id).Build()
 					// Add the listener
 					err = manager.AddListener(url, func(msg messaging.Message) {
-						var exists bool
-						var instanceId, actionId string
+						var actionId string
 						var actionHandler handlers.ActionHandler
-						actionId, exists = msg.GetStrHeader(ActionIdKey)
-						if !exists {
-							logger.ErrorF("Failed to get actionId from message: %v", err)
-							return
-						}
-						instanceId, exists = msg.GetStrHeader(InstanceIdKey)
-						if !exists {
-							logger.ErrorF("Failed to get instanceId from message: %v", err)
-							return
-						}
-						actionHandler = handlers.ActionRegistry.Get(actionId)
-						if actionHandler == nil {
-							logger.ErrorF("Action not found: %v", err)
-							return
-						}
+
 						body := make(map[string]any)
 						err = msg.ReadJSON(&body)
 						if err != nil {
 							logger.ErrorF("Failed to decode message body: %v", err)
 							return
 						}
-						pipeline := data.NewPipelineFrom(instanceId, body)
+						pipeline := data.NewPipelineFrom(body)
+
+						actionId = pipeline.GetActionId()
+						actionHandler = handlers.ActionRegistry.Get(actionId)
+						if actionHandler == nil {
+							logger.ErrorF("Action not found: %v", err)
+							return
+						}
+
 						err = actionHandler.Handle(pipeline)
 						if err != nil {
 							logger.ErrorF("Failed to handle action: %v", err)

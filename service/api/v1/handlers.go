@@ -8,6 +8,7 @@ import (
 	"oss.nandlabs.io/orcaloop-sdk/events"
 	"oss.nandlabs.io/orcaloop-sdk/handlers"
 	"oss.nandlabs.io/orcaloop-sdk/models"
+	"oss.nandlabs.io/orcaloop-sdk/utils"
 )
 
 const (
@@ -56,32 +57,29 @@ func ExecuteAction(ctx rest.ServerContext) {
 		return
 	}
 
-	pipeline := data.NewPipelineFrom(instanceId, input)
+	pipeline := data.NewPipelineFrom(input)
 	err = actionHandler.Handle(pipeline)
 	if err != nil {
 		ctx.SetStatusCode(http.StatusInternalServerError)
 		ctx.WriteJSON(transformError(http.StatusInternalServerError, err.Error()))
 		return
 	} else {
-		responseData := make(map[string]any)
-		for _, returnParam := range actionHandler.Spec().Returns {
-			returnval, err := pipeline.Get(returnParam.Name)
-			if err != nil {
-				ctx.SetStatusCode(http.StatusInternalServerError)
-				ctx.WriteJSON(transformError(http.StatusInternalServerError, err.Error()))
-				return
-			}
-			responseData[returnParam.Name] = returnval
-		}
 
-		ctx.SetStatusCode(http.StatusOK)
-		response := &events.StepChangeEvent{
-			InstanceId: instanceId,
-			StepId:     stepId,
-			Status:     models.StatusCompleted,
-			Data:       data.NewPipelineFrom(instanceId, responseData),
+		if actionHandler.Spec().Async {
+			ctx.SetStatusCode(http.StatusAccepted)
+		} else {
+
+			ctx.SetStatusCode(http.StatusOK)
+			response := &events.StepChangeEvent{
+				EventId:    utils.GenerateId(),
+				InstanceId: instanceId,
+				StepId:     stepId,
+				Status:     models.StatusCompleted,
+				Data:       pipeline.Map(),
+			}
+			ctx.WriteJSON(response)
+
 		}
-		ctx.WriteJSON(response)
 
 		return
 	}

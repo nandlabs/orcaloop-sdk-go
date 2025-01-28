@@ -47,6 +47,15 @@ type Parameter struct {
 	Var   string `yaml:"var" json:"var"`
 }
 
+// Result represents the result of an action execution.
+// Fields:
+// - OutputVar:  variable name of the tool output.
+// - PipelineVar: Variable Name in pipeline to store the result.
+type Result struct {
+	OutputVar   string `yaml:"output_var" json:"output_var"`
+	PipelineVar string `yaml:"pipeline_var" json:"pipeline_var"`
+}
+
 // StepAction represents a substep in the workflow.
 // Fields:
 // - Id: Unique identifier for the action.
@@ -57,7 +66,7 @@ type StepAction struct {
 	Id         string       `yaml:"id" json:"id"`
 	Name       string       `yaml:"name" json:"name"`
 	Parameters []*Parameter `yaml:"parameters" json:"parameters"`
-	Output     []string     `yaml:"output_names" json:"output_names"`
+	Results    []*Result    `yaml:"results" json:"results"`
 }
 
 // Step represents a step in the workflow.

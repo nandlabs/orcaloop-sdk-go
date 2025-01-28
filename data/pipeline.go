@@ -15,13 +15,14 @@ var ErrKeyNotFound = errors.New("key not found")
 // Pipeline is a struct that represents a workflow context
 
 const (
-	WorkflowIdKey = "__workflowId__"
-	InstanceIdKey = "__instanceId__"
-	StepIdKey     = "__stepId__"
-	ErrorKey      = "__error__"
-	ActionIdKey   = "__action_id__"
-	ParentIdKey   = "__parent__"
-	StatusKey     = "__status__"
+	WorkflowIdKey      = "__workflowId__"
+	WorkflowVersionKey = "__workflowVersion__"
+	InstanceIdKey      = "__instanceId__"
+	StepIdKey          = "__stepId__"
+	ErrorKey           = "__error__"
+	ActionIdKey        = "__action_id__"
+	ParentIdKey        = "__parent__"
+	StatusKey          = "__status__"
 )
 
 // Pipeline represents a pipeline that processes data stored in a map.
@@ -94,13 +95,12 @@ func NewPipeline(id string) (pipeline *Pipeline) {
 // Additionally, it sets the InstanceIdKey to the provided ID.
 //
 // Parameters:
-//   - id: A string representing the unique identifier for the pipeline instance.
 //   - values: A map containing initial key-value pairs to be set in the pipeline.
 //
 // Returns:
 //
 //	A Pipeline instance with the specified ID and initial values.
-func NewPipelineFrom(id string, values map[string]any) (pipeline *Pipeline) {
+func NewPipelineFrom(values map[string]any) (pipeline *Pipeline) {
 	pipeline = &Pipeline{
 
 		data: make(map[string]any),
@@ -108,7 +108,6 @@ func NewPipelineFrom(id string, values map[string]any) (pipeline *Pipeline) {
 	for k, v := range values {
 		pipeline.Set(k, v)
 	}
-	pipeline.Set(InstanceIdKey, id)
 	return
 }
 
@@ -240,6 +239,14 @@ func (p *Pipeline) GetWorkflowId() (workflowId string) {
 	return
 }
 
+// GetWorkflowVersion retrieves the workflow version from the Pipeline instance.
+// It uses the ExtractValue function to obtain the value associated with the WorkflowVersionKey.
+// Returns the workflow version identifier as a string.
+func (p *Pipeline) GetWorkflowVersion() (workflowVersion string) {
+	workflowVersion, _ = ExtractValue[string](p, WorkflowVersionKey)
+	return
+}
+
 // SetError assigns the provided error message to the Pipeline instance.
 // It uses the Set function to assign the error message to the ErrorKey.
 //
@@ -311,6 +318,12 @@ func (p *Pipeline) GetParent() (parent string) {
 	return
 }
 
+// GetStatus retrieves the status of the Pipeline.
+// It attempts to extract the status value using the StatusKey.
+// If an error occurs during extraction, it returns models.StatusUnknown.
+//
+// Returns:
+//   - status (models.Status): The current status of the Pipeline.
 func (p *Pipeline) GetStatus() (status models.Status) {
 	status = models.StatusUnknown
 	s, err := ExtractValue[models.Status](p, StatusKey)
