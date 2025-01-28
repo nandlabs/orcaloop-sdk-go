@@ -1,5 +1,6 @@
 package events
 
+import "oss.nandlabs.io/orcaloop-sdk/models"
 
 // StepChangeEvent represents an event that indicates a change in the status of a step within a pipeline instance.
 // It contains the following fields:
