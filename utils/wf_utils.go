@@ -242,9 +242,6 @@ func ValidateStep(step *models.Step) (err error) {
 		if step.For.ItemsVar != "" && (len(step.For.ItemsArr) == 0 && step.For.ItemsVar == "") {
 			return fmt.Errorf("missing items or itemsVar for for-loop step %s atleast one of them is required", step.Id)
 		}
-		if step.For.Loopvar != "" && step.For.IndexVar == "" {
-			return fmt.Errorf("missing indexVar and index for for-loop step %s atleast one of them is required", step.Id)
-		}
 
 		if len(step.For.Steps) == 0 {
 			return fmt.Errorf("missing steps for for-loop step %s", step.Id)
