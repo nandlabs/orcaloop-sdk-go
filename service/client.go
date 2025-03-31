@@ -25,8 +25,11 @@ type OrcaloopClient struct {
 
 func (oc *OrcaloopClient) Register(actionHandler handlers.ActionHandler) (err error) {
 	var res *rest.Response
-
-	req := oc.client.NewRequest(oc.baseurl+ActionsEndPoint, http.MethodPost)
+	var req *rest.Request
+	req, err = oc.client.NewRequest(oc.baseurl+ActionsEndPoint, http.MethodPost)
+	if err != nil {
+		return
+	}
 	req.SetContentType(ioutils.MimeApplicationJSON)
 	req.SetBody(actionHandler.Spec())
 	res, err = oc.client.Execute(req)
@@ -54,13 +57,17 @@ func (oc *OrcaloopClient) Register(actionHandler handlers.ActionHandler) (err er
 
 func (oc *OrcaloopClient) Respond(actionSpec models.ActionSpec, pipeline *data.Pipeline) (err error) {
 	var res *rest.Response
+	var req *rest.Request
 	var stepId, instanceId, workflowId string
 	var status models.Status
 	instanceId = pipeline.Id()
 	endpoint := oc.baseurl + InstanceEndpoint
 	endpoint = strings.ReplaceAll(endpoint, ":instanceId", instanceId)
 	endpoint = strings.ReplaceAll(endpoint, ":actionId", actionSpec.Id)
-	req := oc.client.NewRequest(endpoint, http.MethodPost)
+	req, err = oc.client.NewRequest(endpoint, http.MethodPost)
+	if err != nil {
+		return
+	}
 	req.SetContentType(ioutils.MimeApplicationJSON)
 	outputData := data.NewPipeline(instanceId)
 	// Set the error response
